@@ -2399,16 +2399,16 @@ type Tree = {
   p: number;
 };
 
-const createObject = (word: string, obj: Tree, depth: number): Tree | void => {
+const createTreeForWord = (word: string, tree: Tree, depth: number): Tree | void => {
   // Recursively create decision tree structure
   if (depth > 4) {
-    return obj;
+    return tree;
   } else {
     // For each colour, add probabilities and new lists
     colours.forEach((colour) => {
-      if (!obj[colour] && obj.list.length > 0) {
-        obj[colour] = calculateLetterColor(
-          obj.list,
+      if (!tree[colour] && tree.list.length > 0) {
+        tree[colour] = calculateLetterColor(
+          tree.list,
           word[depth],
           depth,
           colour
@@ -2417,30 +2417,30 @@ const createObject = (word: string, obj: Tree, depth: number): Tree | void => {
     });
     const newDepth = depth + 1;
     colours.forEach((colour) => {
-      if (obj.list.length > 0) {
-        createObject(word, obj[colour] as Tree, newDepth);
+      if (tree.list.length > 0) {
+        createTreeForWord(word, tree[colour] as Tree, newDepth);
       }
     });
   }
 };
 
-const fillInObject = (word: string, originalList: string[]) => {
+const fillInTreeForWord = (word: string, originalList: string[]) => {
   let depth = 0;
-  let composedObj: Tree = { list: originalList, p: 1 };
-  createObject(word, composedObj, depth);
-  return composedObj;
+  let composedTree: Tree = { list: originalList, p: 1 };
+  createTreeForWord(word, composedTree, depth);
+  return composedTree;
 };
 
-const calculateP = (pValues: number[], obj: Tree, p: number, depth: number) => {
+const calculatePForTree = (pValues: number[], tree: Tree, p: number, depth: number) => {
   colours.forEach((colour) => {
-    if (obj[colour] && (obj[colour]?.list.length ?? 0) > 0) {
+    if (tree[colour] && (tree[colour]?.list.length ?? 0) > 0) {
       if (depth === 4) {
-        pValues.push((obj[colour]?.p ?? 0) * p);
+        pValues.push((tree[colour]?.p ?? 0) * p);
       } else {
-        calculateP(
+        calculatePForTree(
           pValues,
-          obj[colour] as Tree,
-          (obj[colour]?.p ?? 0) * p,
+          tree[colour] as Tree,
+          (tree[colour]?.p ?? 0) * p,
           depth + 1
         );
       }
@@ -2448,13 +2448,13 @@ const calculateP = (pValues: number[], obj: Tree, p: number, depth: number) => {
   });
 };
 
-const calculateWordScore = (obj: Tree) => {
+const calculateWordScore = (tree: Tree) => {
   // Go through each branch in tree to multiply probabilities
   // Square each probability and add to array
   // Return the sum of the array
   const pValues: number[] = [];
   const depth = 0;
-  calculateP(pValues, obj, 1, depth);
+  calculatePForTree(pValues, tree, 1, depth);
   const pSquared = pValues.map((value) => value * value);
   const score = pSquared.reduce((pv, cv) => pv + cv, 0);
   return score;
@@ -2483,8 +2483,8 @@ const calculate = fastMemoize(
         usedList = filteredList;
       }
       for (let i = 1; i < usedList.length; i += 1) {
-        const oneWordObj = fillInObject(usedList[i], filteredList);
-        const score = calculateWordScore(oneWordObj);
+        const oneWordTree = fillInTreeForWord(usedList[i], filteredList);
+        const score = calculateWordScore(oneWordTree);
         if (score < minScore) {
           minScore = score;
           minWord = usedList[i];
