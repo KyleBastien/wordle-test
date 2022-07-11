@@ -2466,40 +2466,34 @@ interface Guess {
   list: string[];
 }
 
-const calculate = fastMemoize((filters: Filter[], mode: "hard" | "easy"): Guess => {
-  const filteredList = matchesFilters(fullList, [...filters]);
+const calculate = fastMemoize(
+  (filters: Filter[], mode: "hard" | "easy"): Guess => {
+    const filteredList = matchesFilters(fullList, [...filters]);
 
-  let usedList = mode === "hard" ? filteredList : fullList;
+    let usedList = mode === "hard" ? filteredList : fullList;
 
-  let minScore = 1;
-  let minWord = usedList[0];
+    let minScore = 1;
+    let minWord = usedList[0];
 
-  if (filteredList.length === 1) {
-    return { minScore, word: filteredList[0], list: filteredList };
-  } else if (filteredList.length < 4) {
-    // Start guessing potential words to see if you get lucky
-    usedList = filteredList;
-    for (let i = 1; i < usedList.length; i += 1) {
-      const oneWordObj = fillInObject(usedList[i], filteredList);
-      const score = calculateWordScore(oneWordObj);
-      if (score < minScore) {
-        minScore = score;
-        minWord = usedList[i];
+    if (filteredList.length === 1) {
+      return { minScore, word: filteredList[0], list: filteredList };
+    } else {
+      if (filteredList.length < 4) {
+        // Start guessing potential words to see if you get lucky
+        usedList = filteredList;
       }
-    }
-    return { minScore, word: minWord, list: filteredList };
-  } else {
-    for (let i = 1; i < usedList.length; i += 1) {
-      const oneWordObj = fillInObject(usedList[i], filteredList);
-      const score = calculateWordScore(oneWordObj);
-      if (score < minScore) {
-        minScore = score;
-        minWord = usedList[i];
+      for (let i = 1; i < usedList.length; i += 1) {
+        const oneWordObj = fillInObject(usedList[i], filteredList);
+        const score = calculateWordScore(oneWordObj);
+        if (score < minScore) {
+          minScore = score;
+          minWord = usedList[i];
+        }
       }
+      return { minScore, word: minWord, list: filteredList };
     }
-    return { minScore, word: minWord, list: filteredList };
   }
-});
+);
 
 function replaceAt(word: string, index: number, replaceWith: string = "-") {
   return word.substring(0, index) + replaceWith + word.substring(index + 1);
