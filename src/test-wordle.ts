@@ -2320,7 +2320,7 @@ const fullList = [
 ];
 
 interface Filter {
-  colour: "black" | "green" | "yellow";
+  color: "black" | "green" | "yellow";
   position: number;
   letter: string;
   group: string;
@@ -2330,7 +2330,7 @@ const matchesFilters = (wordList: string[], filters: Filter[]) => {
   return wordList.filter((word) => {
     let match = true;
     for (let i = 0; i < filters.length; i += 1) {
-      const { colour, position, letter, group } = filters[i];
+      const { color, position, letter, group } = filters[i];
 
       const filterGroupIndex =
         filters
@@ -2339,7 +2339,7 @@ const matchesFilters = (wordList: string[], filters: Filter[]) => {
           })
           .indexOf(filters[i]) + 1;
 
-      if (colour === "black") {
+      if (color === "black") {
         if (filterGroupIndex > 1) {
           if (word.split(letter).length - 1 > filterGroupIndex) {
             match = false;
@@ -2351,14 +2351,14 @@ const matchesFilters = (wordList: string[], filters: Filter[]) => {
         }
       }
 
-      if (colour === "green") {
+      if (color === "green") {
         if (word[position] !== letter) {
           match = false;
           break;
         }
       }
 
-      if (colour === "yellow") {
+      if (color === "yellow") {
         if (!word.includes(letter) || word[position] === letter) {
           match = false;
           break;
@@ -2369,7 +2369,7 @@ const matchesFilters = (wordList: string[], filters: Filter[]) => {
   });
 };
 
-const colours = ["green", "yellow", "black"] as const;
+const colors = ["green", "yellow", "black"] as const;
 
 interface LetterColor {
   p: number;
@@ -2380,10 +2380,10 @@ const calculateLetterColor = (
   wordList: string[],
   letter: string,
   position: number,
-  colour: "black" | "green" | "yellow"
+  color: "black" | "green" | "yellow"
 ): LetterColor => {
   const matchingWords = matchesFilters(wordList, [
-    { colour, position, letter, group: "future" },
+    { color, position, letter, group: "future" },
   ]);
   return {
     p: (matchingWords.length * 1.0) / wordList.length,
@@ -2404,21 +2404,21 @@ const createTreeForWord = (word: string, tree: Tree, depth: number): Tree | void
   if (depth > 4) {
     return tree;
   } else {
-    // For each colour, add probabilities and new lists
-    colours.forEach((colour) => {
-      if (!tree[colour] && tree.list.length > 0) {
-        tree[colour] = calculateLetterColor(
+    // For each color, add probabilities and new lists
+    colors.forEach((color) => {
+      if (!tree[color] && tree.list.length > 0) {
+        tree[color] = calculateLetterColor(
           tree.list,
           word[depth],
           depth,
-          colour
+          color
         );
       }
     });
     const newDepth = depth + 1;
-    colours.forEach((colour) => {
+    colors.forEach((color) => {
       if (tree.list.length > 0) {
-        createTreeForWord(word, tree[colour] as Tree, newDepth);
+        createTreeForWord(word, tree[color] as Tree, newDepth);
       }
     });
   }
@@ -2432,15 +2432,15 @@ const fillInTreeForWord = (word: string, originalList: string[]) => {
 };
 
 const calculatePForTree = (pValues: number[], tree: Tree, p: number, depth: number) => {
-  colours.forEach((colour) => {
-    if (tree[colour] && (tree[colour]?.list.length ?? 0) > 0) {
+  colors.forEach((color) => {
+    if (tree[color] && (tree[color]?.list.length ?? 0) > 0) {
       if (depth === 4) {
-        pValues.push((tree[colour]?.p ?? 0) * p);
+        pValues.push((tree[color]?.p ?? 0) * p);
       } else {
         calculatePForTree(
           pValues,
-          tree[colour] as Tree,
-          (tree[colour]?.p ?? 0) * p,
+          tree[color] as Tree,
+          (tree[color]?.p ?? 0) * p,
           depth + 1
         );
       }
@@ -2526,7 +2526,7 @@ function isThisTheWord(
       result[i] = {
         position: i,
         letter,
-        colour: "green",
+        color: "green",
         group: guessNumber.toString(),
       };
       inputWordCopy = replaceAt(inputWordCopy, i);
@@ -2543,7 +2543,7 @@ function isThisTheWord(
         (letterMap.get(letter) ?? 0)
       ) {
         result[i] = {
-          colour: "yellow",
+          color: "yellow",
           position: i,
           letter,
           group: guessNumber.toString(),
@@ -2561,7 +2561,7 @@ function isThisTheWord(
     const letter = input[i];
     if (inputWordCopy[i] !== "-") {
       result[i] = {
-        colour: "black",
+        color: "black",
         letter,
         position: i,
         group: guessNumber.toString(),
