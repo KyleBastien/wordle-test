@@ -2579,7 +2579,7 @@ function isThisTheWord(
   return result;
 }
 
-// play the game with seize
+// play the game
 const playGame = () => {
   const startTime = performance.now();
   const attemptCountList: number[] = [];
